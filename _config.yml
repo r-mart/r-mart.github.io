@@ -24,7 +24,7 @@ title: tecksing                          # the main title
 tagline: Blog   # it will display as the sub-title
 
 description: >-                        # used by seo meta and the atom feed
-  A blog about statistics, machine learning, signal processing, cameras, sensors and related topics
+  A blog about statistics, machine learning, signal processing and related topics
 
 # fill in the protocol & hostname for your site, e.g., 'https://username.github.io'
 url: 'https://r-mart.github.io'
