@@ -19,7 +19,7 @@ timezone: Europe/Berlin
 # jekyll-seo-tag settings › https://github.com/jekyll/jekyll-seo-tag/blob/master/docs/usage.md
 # ↓ --------------------------
 
-title: r-mart                          # the main title
+title: Machine Learning, Image Analysis et cetera
 
 tagline: Blog   # it will display as the sub-title
 
