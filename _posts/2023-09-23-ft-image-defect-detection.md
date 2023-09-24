@@ -116,7 +116,7 @@ The resulting image compared with the original image is shown below
 
 {% include ft-image-defect-detection/defect_image_reconstructed.html %} 
 
-And indeed, we managed to spirit away the defects! However, the image borders are a bit blurred now. This is because the Fourier Transform assumes in theory and infinitely long input signal but our image has finite dimensions. We will deal with any side effects caused by this in the post processing.
+And indeed, we managed to spirit away the defects! However, the image borders are a bit blurred now. This is because the Fourier Transform assumes in theory an infinitely long input signal but our image has finite dimensions. We will deal with any side effects caused by this in the post processing.
 
 The image difference highlights the defects
 
@@ -126,7 +126,7 @@ diff = ImageChops.difference(img, img_proc)
 
 {% include ft-image-defect-detection/defect_image_difference.html %}
 
-An alternative approach to get to the same result is to invert the masking and keep only the non-peak areas of the frequency magnitude map
+An alternative approach to get to the same result is to invert the masking and keep only the non-peak areas of the frequencies
 
 ```python
 # invert mask
@@ -330,7 +330,7 @@ Use the [notebook in the github repo](https://github.com/r-mart/blog-posts/blob/
 
 ## Summary
 
-We demonstrated a simple approach to detect defects in images based on Fourier Transforms. The method is limited to the specific use case of images with strong regular patterns and locally confined defects. Defects which follow a pattern themselves would break our approach. It is also vulnerable to inhomogeneous lighting or vignetting effects. Furthermore, there are a couple of parameters like `mag_thresh` or `perc_thresh` which you will likely have to adjust to your specific use case. This requires knowledge and makes it hard to use the method in plug and play scenarios.
-However, the advantage in contrast to Machine Learning based approaches is that it doesn't require a large training dataset and expensive model training. It also runs fast on CPUs without large memory footprint.
+We demonstrated a simple approach to detect defects in images based on Fourier Transforms. The method is limited to the specific use case of images with strong regular patterns and locally confined defects. Defects which follow a pattern themselves would break our approach. It is also vulnerable to inhomogeneous lighting or vignetting effects. Furthermore, there are a couple of parameters like `mag_thresh` or `perc_thresh` which you will likely have to adjust to your specific use case. This requires knowledge and makes it hard to use the method in plug-and-play scenarios.
+However, the advantage in contrast to Machine Learning based approaches is that it doesn't require a large training dataset and expensive model training. It also runs fast on CPU without large memory footprint.
 
 
