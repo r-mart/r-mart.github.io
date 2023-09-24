@@ -2,6 +2,7 @@
 layout: post
 title: Fourier Transform for detecting defects on images with regular patterns
 date: 2023-09-23 11:38 +0200
+tags: [python, image_analysis]
 ---
 
 <!-- 
@@ -16,18 +17,14 @@ Summary
 
 ## Problem Description
 
-You have images from a production line which you want to inspect for any defects or anomalies.
-The quality of your produce is quite good and defects are very rare. 
-As they are so rare, you don't know in advance what kind of defects may appear. 
-The previous defects you observed so far have a large variety and are randomly located. Hence, it is impossible to classify the defects.
-On the other hand, your images exhibit a regular pattern and the defects break this pattern.
+You have images from a production line which you want to inspect for any defects or anomalies. Defects are very rare and you don't know in advance what kind of defects may appear. Hence, it is impossible to gather data for a Deep Learning based classification approach.  On the other hand, your images exhibit a regular pattern which the defects are breaking.
 
 ## Example Dataset
 
 To reproduce this setting we will use the [MVTec anomaly detection dataset](https://www.mvtec.com/company/research/datasets/mvtec-ad). You can download the dataset from the website. 
-The dataset contains 15 different categories. Five of them are texture categories which fit to our use case because they exhibit a regular pattern. In particular, for this post we will look at the 'Grid' category.
+The dataset contains 15 different categories. Five of them are texture categories which fit to our use case because they exhibit a regular pattern. For this post we will look at the 'Grid' category in particular.
 
-Here is a normal images (without defect) for this category
+Here is a normal image without defect
 
 {% include ft-image-defect-detection/normal_image.html %}
 
@@ -35,11 +32,11 @@ And in comparison, a defect image
 
 {% include ft-image-defect-detection/defect_image.html %}
 
+We can see that the defects break the otherwise quite regular grid pattern.
+
 ## Method
 
-Using Fourier Transform to find defects in images with regular patterns is motivated by the following properties.
-
-Transforming an extended regular pattern in position space, like a single sine wave, leads to a narrow peak in frequency domain
+Using Fourier Transform to find defects in images with regular patterns is motivated by the following properties. Transforming an extended regular pattern in position space, like a single sine wave, leads to a narrow peak in frequency domain
 
 {% include ft-image-defect-detection/FT_of_wave.html %}
 
@@ -47,10 +44,11 @@ In contrast, transforming a narrow peak in position space, leads to an evenly di
 
 {% include ft-image-defect-detection/FT_of_peak.html %}
 
-Hence, applied to images with regular patterns, the pattern will lead to individual peaks in frequency domain while the locally-confined defects will lead to a spread-out noise. 
+Hence, applied to images, patterns will lead to individual peaks in frequency domain while locally-confined defects will lead to a spread-out noise. 
 This should make it simple to separate the two signals using a threshold in frequency domain.
 
-So let's try this on our defect image from above. To follow along with the code samples you will need a python virtual environment setup with the used libraries, the data downloaded locally and `data_path` adjusted if necessary. See the [github repo](https://github.com/r-mart/blog-posts) for the full source code, including the plotting functions.<br>
+So let's try this on our defect image from above. To follow along with the code samples you will need a python virtual environment setup with the used libraries, the data downloaded locally and the `data_path` variable adjusted if necessary. See the [github repo](https://github.com/r-mart/blog-posts) for the full source code, including the plotting functions.<br>
+
 We start by converting the image into frequency domain
 
 ```python
@@ -58,7 +56,6 @@ from pathlib import Path
 from PIL import Image, ImageChops
 import numpy as np
 from scipy.fft import fft2, ifft2, fftshift, ifftshift
-
 
 data_path = Path("../data/raw/grid")
 
@@ -98,7 +95,7 @@ The resulting `mag_img_mask` looks like
 
 {% include ft-image-defect-detection/FT_mag_peak_masked.html %}
 
-The mask allows us to separate the peaks from the rest and transform the modified frequency magnitudes back
+The mask allows us to separate the peaks from the rest and transform the modified frequencies back to image domain
 
 ```python
 # masking
@@ -115,19 +112,17 @@ img_proc = (img_proc * 255.0).astype(np.uint8)
 img_proc = Image.fromarray(np.uint8(img_proc))
 ```
 
-The resulting image looks like this. For comparison the original image is shown below
+The resulting image compared with the original image is shown below
 
 {% include ft-image-defect-detection/defect_image_reconstructed.html %} 
 
-And indeed, we managed to spirit away the defects! However, the image edges are a bit blurred now. This is because, the Fourier Transform assumes in theory and infinitely long input signal but our image has finite dimensions. We will deal with any side effects caused by this in post processing.
+And indeed, we managed to spirit away the defects! However, the image borders are a bit blurred now. This is because the Fourier Transform assumes in theory and infinitely long input signal but our image has finite dimensions. We will deal with any side effects caused by this in the post processing.
 
-The image difference should now highlight our defects
+The image difference highlights the defects
 
 ```python
 diff = ImageChops.difference(img, img_proc)
 ```
-
-Plotting `diff` yields
 
 {% include ft-image-defect-detection/defect_image_difference.html %}
 
@@ -150,14 +145,14 @@ img_proc = (img_proc * 255.0).astype(np.uint8)
 img_proc = Image.fromarray(np.uint8(img_proc))
 ```
 
-This yields directly to the reconstructed image
+This yields directly the highlighted defects
 
 {% include ft-image-defect-detection/defect_image_invert_reconstructed.html %}
 
-This is because we now only kept the part of the frequency signal encoding the defect. As this is a bit simpler, we will use this approach to put everything together in one function to highlight the defects in images with regular patterns
+This is because we now only kept the part of the frequency signal encoding the defect. As this is a bit simpler, we will use this approach to put everything together in one function
 
 ```python
-def ft_extract_anomalies(img : Image.Image, mag_thresh : float = 0.5) -> Image.Image:
+def ft_extract_anomalies(img: Image.Image, mag_thresh: float = 0.5) -> Image.Image:
 
     # prepare image
     img_np = np.array(img)
@@ -178,7 +173,6 @@ def ft_extract_anomalies(img : Image.Image, mag_thresh : float = 0.5) -> Image.I
     # masking
     mag_img_mask = mag_img_mask.astype(bool)
     mag_img_mask_inv = ~mag_img_mask
-
     fshift_proc = fshift * mag_img_mask_inv
 
     # transform back
@@ -203,7 +197,7 @@ img = img.convert("L")
 img_proc = ft_extract_anomalies(img, mag_thresh=0.65)
 ```
 
-Now we have highlighted the defects but we still haven't properly detected them using bounding boxes. We will do this in the post processing step.
+So far we have highlighted the defects but we still haven't properly localized them using bounding boxes. We will do this in the following post processing section.
 
 ## Post Processing
 
@@ -222,7 +216,7 @@ giving us
 
 {% include ft-image-defect-detection/defects_thresholded.html %}
 
-We can see the defects in the mask. However, due to their structure they don't appear as one connected region. Furthermore, due to the blurring at the edges we see some noise there. We can fix both by using morphological dilation and clearing everything touching the image borders. Afterwards, we assign a unique labels to each connected region
+We can see the defects in the mask. However, due to their structure they don't appear as one connected region. Furthermore, due to the blurring at the borders we see some noise there. We can fix both by using morphological dilation and clearing everything touching the image borders. Afterwards, we assign unique labels to each connected region
 
 ```python
 from skimage import morphology
@@ -243,17 +237,16 @@ The resulting label image looks like
 
 {% include ft-image-defect-detection/defects_label_map.html %}
 
-By hovering over the big regions we can see that they got assigned the same label (hence they are connected).
-Hence, we can filter out small regions by an area threshold an save the bounding boxes of the remaining regions
+By hovering over the big regions we see that they got assigned the same label (meaning they are connected). Afterwards, we filter out small regions by an area threshold an save the bounding boxes of the remaining regions
 
 ```python
 regions = measure.regionprops(img_lab)
-# filter out small ones
+# filter out small regions
 area_thresh = img_proc_np.shape[0] * img_proc_np.shape[1] * 0.001
 defects_bboxes = [reg.bbox for reg in regions if reg.area >= area_thresh]
 ```
 
-We can see that the resulting bounding boxes match the defects
+The resulting bounding boxes match the defects
 
 {% include ft-image-defect-detection/defects_bboxes.html %}
 
@@ -311,7 +304,7 @@ def ft_defect_detection(
     return bboxes
 ```
 
-To see it in action, we iterate through the defect data and show the results
+To see it in action, we iterate through the defect images and show the results
 
 ```python
 # iterator through defect images
@@ -333,11 +326,11 @@ show(p)
 
 {% include ft-image-defect-detection/defects_example_2.html %}
 
-Use the [notebook in the github repo](https://github.com/r-mart/blog-posts/blob/7c11226f29447b73100eba344b6ae820feb650cd/posts/ft_for_defects_in_regular_structures.ipynb) to see the plotting functions and interactively apply the method on more examples.
+Use the [notebook in the github repo](https://github.com/r-mart/blog-posts/blob/7c11226f29447b73100eba344b6ae820feb650cd/posts/ft_for_defects_in_regular_structures.ipynb) to interactively apply the method to more examples.
 
 ## Summary
 
-We demonstrated a simple approach to detect defects in images based on Fourier Transforms. The method is limited to the specific use case of images with strong regular patterns and locally confined defects. Defects which follow a pattern would break our method. It is also vulnerable to inhomogeneous lighting or vignetting effects. Furthermore, there are a couple of parameters like `mag_thresh` or `perc_thresh` which you will likely have to adjust to your specific use case. This requires knowledge and makes it hard to use the method in plug and play scenarios.
-However, the advantage, in contrast to Machine Learning based approaches, is that it doesn't require a large training dataset, model training and runs fast on CPUs without large memory footprint.
+We demonstrated a simple approach to detect defects in images based on Fourier Transforms. The method is limited to the specific use case of images with strong regular patterns and locally confined defects. Defects which follow a pattern themselves would break our approach. It is also vulnerable to inhomogeneous lighting or vignetting effects. Furthermore, there are a couple of parameters like `mag_thresh` or `perc_thresh` which you will likely have to adjust to your specific use case. This requires knowledge and makes it hard to use the method in plug and play scenarios.
+However, the advantage in contrast to Machine Learning based approaches is that it doesn't require a large training dataset and expensive model training. It also runs fast on CPUs without large memory footprint.
 
 
