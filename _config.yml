@@ -19,12 +19,12 @@ timezone: Europe/Berlin
 # jekyll-seo-tag settings › https://github.com/jekyll/jekyll-seo-tag/blob/master/docs/usage.md
 # ↓ --------------------------
 
-title: Machine Learning, Image Analysis et cetera
+title: Roman's Logbook
 
-tagline: Blog   # it will display as the sub-title
+tagline: Machine Learning, Image Analysis et cetera
 
 description: >-                        # used by seo meta and the atom feed
-  A blog about statistics, machine learning, signal processing and related topics
+  A blog about machine learning, image analysis, anomaly detection and related topics
 
 # fill in the protocol & hostname for your site, e.g., 'https://username.github.io'
 url: 'https://r-mart.github.io'
