@@ -575,4 +575,3 @@ Note however that the benchmark takes the average score for all 15 dataset categ
 
 We demonstrated a simple approach for image anomaly detection that reaches results comparable to the SOTA on the MVTec AD dataset.
 This approach uses only normal data samples and doesn't require a conventional Deep Learning training pipeline, just a 'memorizing' of features. It can therefore be easily applied in practice, even without a powerful workstation. The main assumption is that the images are fairly similar to natural images (as this is what ImageNet was originally trained for). Furthermore, the complexity should be similar to the images in the MVTec AD dataset, i.e. single centered objects without much variation in background or images completely covered by textures.
-
