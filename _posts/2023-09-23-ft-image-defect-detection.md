@@ -3,6 +3,7 @@ layout: post
 title: Fourier Transform for detecting defects on images with regular patterns
 date: 2023-09-23 11:38 +0200
 tags: [python, image_analysis]
+toc: true
 ---
 
 <!-- 
