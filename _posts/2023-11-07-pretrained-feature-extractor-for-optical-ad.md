@@ -3,6 +3,7 @@ layout: post
 title: Using pre-trained feature extractor for optical anomaly detection
 date: 2023-11-07 20:02 +0100
 tags: [anomaly_detection, python, image_analysis, pytorch, optical_inspection]
+toc: true
 ---
 
 
